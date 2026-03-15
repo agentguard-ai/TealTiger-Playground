@@ -1,0 +1,44 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Generated API docs
+docs/typedoc
+
+# Playwright
+playwright-report/
+test-results/
+blob-report/
+
+# Coverage
+coverage/
+
+# Auto-generated task/phase summary files
+TASK-*.md
+PHASE-*.md
+PLAYGROUND-*.md
+RLS-IMPLEMENTATION-SUMMARY.md
+*-SUMMARY.md
+*-COMPLETE.md
+*-KNOWN-ISSUES.md

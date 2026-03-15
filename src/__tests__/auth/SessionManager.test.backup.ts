@@ -1,0 +1,191 @@
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { AuthenticationService } from '@/services/AuthenticationService';
+
+// Mock Supabase
+vi.mock('@/lib/supabase', () => ({
+  supabase: {
+    auth: {
+      signInWithOAuth: vi.fn().mockResolvedValue({ data: { provider: 'github', url: 'https://github.com/login' }, error: null }),
+      getSession: vi.fn(),
+      signOut: vi.fn(),
+      refreshSession: vi.fn(),
+    },
+    from: vi.fn(() => ({
+      upsert: vi.fn(() => ({ error: null })),
+      select: vi.fn(() => ({
+        eq: vi.fn(() => ({
+          single: vi.fn(() => ({ data: null, error: null })),
+        })),
+      })),
+    })),
+  },
+  isSupabaseConfigured: () => true,
+}));
+
+describe('AuthenticationService', () => {
+  let authService: AuthenticationService;
+
+  beforeEach(() => {
+    authService = new AuthenticationService();
+    vi.clearAllMocks();
+  });
+
+  describe('signInWithGitHub', () => {
+    it('should initiate GitHub OAuth flow', async () => {
+      const { supabase } = await import('@/lib/supabase');
+      
+      await authService.signInWithGitHub();
+
+      expect(supabase.auth.signInWithOAuth).toHaveBeenCalledWith({
+        provider: 'github',
+        options: {
+          scopes: 'read:user user:email read:org',
+          redirectTo: expect.stringContaining('/auth/callback'),
+        },
+      });
+    });
+
+    it('should throw error if sign-in fails', async () => {
+      const { supabase } = await import('@/lib/supabase');
+      vi.mocked(supabase.auth.signInWithOAuth).mockResolvedValueOnce({
+        data: { provider: 'github', url: null },
+        error: { message: 'OAuth failed', name: 'OAuthError' } as any,
+      });
+
+      await expect(authService.signInWithGitHub()).rejects.toThrow('OAuth failed');
+    });
+  });
+
+  describe('handleCallback', () => {
+    it('should create user profile after OAuth callback', async () => {
+      const { supabase } = await import('@/lib/supabase');
+      
+      const mockSession = {
+        access_token: 'test-token',
+        refresh_token: 'refresh-token',
+        expires_at: Date.now() + 3600000,
+        user: {
+          id: 'user-123',
+          email: 'test@example.com',
+          user_metadata: {
+            user_name: 'testuser',
+            avatar_url: 'https://github.com/testuser.png',
+          },
+        },
+      };
+
+      vi.mocked(supabase.auth.getSession).mockResolvedValueOnce({
+        data: { session: mockSession },
+        error: null,
+      });
+
+      const user = await authService.handleCallback();
+
+      expect(user).toEqual({
+        id: 'user-123',
+        githubId: 'testuser',
+        username: 'testuser',
+        email: 'test@example.com',
+        avatarUrl: 'https://github.com/testuser.png',
+        organizations: [],
+      });
+    });
+
+    it('should throw error if no session after callback', async () => {
+      const { supabase } = await import('@/lib/supabase');
+      
+      vi.mocked(supabase.auth.getSession).mockResolvedValueOnce({
+        data: { session: null },
+        error: null,
+      });
+
+      await expect(authService.handleCallback()).rejects.toThrow('No session found');
+    });
+  });
+
+  describe('signOut', () => {
+    it('should sign out user and clear session', async () => {
+      const { supabase } = await import('@/lib/supabase');
+      vi.mocked(supabase.auth.signOut).mockResolvedValueOnce({
+        error: null,
+      } as any);
+
+      await authService.signOut();
+
+      expect(supabase.auth.signOut).toHaveBeenCalled();
+    });
+
+    it('should throw error if sign-out fails', async () => {
+      const { supabase } = await import('@/lib/supabase');
+      vi.mocked(supabase.auth.signOut).mockResolvedValueOnce({
+        error: { message: 'Sign out failed', name: 'SignOutError' } as any,
+      });
+
+      await expect(authService.signOut()).rejects.toThrow('Sign out failed');
+    });
+  });
+
+  describe('getCurrentUser', () => {
+    it('should return current user if authenticated', async () => {
+      const { supabase } = await import('@/lib/supabase');
+      
+      const mockSession = {
+        user: {
+          id: 'user-123',
+          email: 'test@example.com',
+          user_metadata: {
+            user_name: 'testuser',
+            avatar_url: 'https://github.com/testuser.png',
+          },
+        },
+      };
+
+      const mockUserProfile = {
+        id: 'user-123',
+        github_id: 'testuser',
+        username: 'testuser',
+        email: 'test@example.com',
+        avatar_url: 'https://github.com/testuser.png',
+        created_at: new Date().toISOString(),
+        last_seen: new Date().toISOString(),
+      };
+
+      vi.mocked(supabase.auth.getSession).mockResolvedValueOnce({
+        data: { session: mockSession },
+        error: null,
+      } as any);
+
+      // Mock the database query chain
+      const mockSelect = vi.fn().mockReturnValue({
+        eq: vi.fn().mockReturnValue({
+          single: vi.fn().mockResolvedValue({
+            data: mockUserProfile,
+            error: null,
+          }),
+        }),
+      });
+
+      vi.mocked(supabase.from).mockReturnValueOnce({
+        select: mockSelect,
+      } as any);
+
+      const user = await authService.getCurrentUser();
+
+      expect(user).toBeTruthy();
+      expect(user?.username).toBe('testuser');
+    });
+
+    it('should return null if not authenticated', async () => {
+      const { supabase } = await import('@/lib/supabase');
+      
+      vi.mocked(supabase.auth.getSession).mockResolvedValueOnce({
+        data: { session: null },
+        error: null,
+      } as any);
+
+      const user = await authService.getCurrentUser();
+
+      expect(user).toBeNull();
+    });
+  });
+});
