@@ -1,0 +1,12 @@
+{
+  "entryPoints": ["src/services", "src/types"],
+  "entryPointStrategy": "expand",
+  "out": "docs/typedoc",
+  "name": "TealTiger Playground API",
+  "readme": "none",
+  "excludePrivate": true,
+  "excludeInternal": true,
+  "includeVersion": true,
+  "exclude": ["**/__tests__/**", "**/*.test.ts"],
+  "tsconfig": "tsconfig.json"
+}

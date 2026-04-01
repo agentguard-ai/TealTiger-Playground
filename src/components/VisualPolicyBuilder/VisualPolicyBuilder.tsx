@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback } from 'react';
 import ReactFlow, {
   ReactFlowProvider,
   Background,
@@ -9,54 +9,175 @@ import ReactFlow, {
   useEdgesState,
   BackgroundVariant,
 } from 'reactflow';
+import type { Node, Edge, Connection } from 'reactflow';
 import 'reactflow/dist/style.css';
+import { BlockLibrary } from './BlockLibrary';
+import { useVisualPolicyStore } from '../../stores/visualPolicyStore';
+import { getBlockById } from '../../data/blockLibrary';
+import type { PolicyBlock } from '../../types/visual-policy';
 
-const initialNodes = [
-  {
-    id: '1',
-    type: 'default',
-    position: { x: 100, y: 100 },
-    data: { label: '🛡️ PII Detection Guard' },
-    style: { background: '#1e293b', color: '#e2e8f0', border: '2px solid #0ea5e9', borderRadius: 8, padding: 12 },
-  },
-  {
-    id: '2',
-    type: 'default',
-    position: { x: 400, y: 100 },
-    data: { label: '⚡ Allow / Deny Action' },
-    style: { background: '#1e293b', color: '#e2e8f0', border: '2px solid #10b981', borderRadius: 8, padding: 12 },
-  },
-  {
-    id: '3',
-    type: 'default',
-    position: { x: 250, y: 250 },
-    data: { label: '💰 Cost Budget Check' },
-    style: { background: '#1e293b', color: '#e2e8f0', border: '2px solid #f59e0b', borderRadius: 8, padding: 12 },
-  },
-];
-
-const initialEdges = [
-  { id: 'e1-2', source: '1', target: '2', animated: true, style: { stroke: '#0ea5e9' } },
-  { id: 'e1-3', source: '1', target: '3', style: { stroke: '#0ea5e9' } },
-];
+const CATEGORY_COLORS: Record<string, string> = {
+  guards: '#a855f7',
+  actions: '#10b981',
+  routing: '#3b82f6',
+  'cost-control': '#f59e0b',
+  compliance: '#6366f1',
+  conditional: '#f97316',
+  utility: '#6b7280',
+};
 
 const FlowCanvas: React.FC = () => {
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+  const blocks = useVisualPolicyStore((s) => s.blocks);
+  const connections = useVisualPolicyStore((s) => s.connections);
+  const addBlock = useVisualPolicyStore((s) => s.addBlock);
+  const addConnection = useVisualPolicyStore((s) => s.addConnection);
+  const updateBlock = useVisualPolicyStore((s) => s.updateBlock);
+  const selectBlock = useVisualPolicyStore((s) => s.selectBlock);
+  const removeConnection = useVisualPolicyStore((s) => s.removeConnection);
 
-  const onConnect = useCallback(
-    (params: any) => setEdges((eds) => addEdge({ ...params, style: { stroke: '#0ea5e9' } }, eds)),
-    [setEdges]
-  );
+  // Convert store blocks to React Flow nodes
+  const nodes: Node[] = blocks.map((block: PolicyBlock) => {
+    const def = getBlockById(block.definitionId);
+    const borderColor = def ? (CATEGORY_COLORS[def.category] || '#6b7280') : '#ef4444';
+    return {
+      id: block.id,
+      position: block.position,
+      data: { label: `${def?.icon || '?'} ${def?.name || block.definitionId}` },
+      style: {
+        background: '#1e293b',
+        color: '#e2e8f0',
+        border: `2px solid ${borderColor}`,
+        borderRadius: 8,
+        padding: 12,
+        fontSize: 13,
+        minWidth: 160,
+      },
+    };
+  });
+
+  // Convert store connections to React Flow edges
+  const edges: Edge[] = connections.map((conn) => ({
+    id: conn.id,
+    source: conn.sourceBlockId,
+    target: conn.targetBlockId,
+    animated: !conn.isValid,
+    style: { stroke: conn.isValid ? '#0ea5e9' : '#ef4444', strokeWidth: 2 },
+    label: conn.condition || undefined,
+    labelStyle: { fill: '#94a3b8', fontSize: 11 },
+    labelBgStyle: { fill: '#1e293b', fillOpacity: 0.9 },
+  }));
+
+  const [rfNodes, setNodes, onNodesChange] = useNodesState(nodes);
+  const [rfEdges, setEdges, onEdgesChange] = useEdgesState(edges);
+
+  // Sync React Flow node changes back to store
+  const handleNodesChange = useCallback((changes: any) => {
+    onNodesChange(changes);
+    changes.forEach((change: any) => {
+      if (change.type === 'position' && change.position) {
+        updateBlock(change.id, { position: change.position });
+      }
+      if (change.type === 'select' && change.selected) {
+        selectBlock(change.id);
+      }
+    });
+  }, [onNodesChange, updateBlock, selectBlock]);
+
+  const handleEdgesChange = useCallback((changes: any) => {
+    onEdgesChange(changes);
+    changes.forEach((change: any) => {
+      if (change.type === 'remove') {
+        removeConnection(change.id);
+      }
+    });
+  }, [onEdgesChange, removeConnection]);
+
+  const onConnect = useCallback((params: Connection) => {
+    if (!params.source || !params.target) return;
+    const newConn = {
+      id: `conn-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
+      sourceBlockId: params.source,
+      sourceOutputId: params.sourceHandle || 'out',
+      targetBlockId: params.target,
+      targetInputId: params.targetHandle || 'in',
+      isValid: true,
+    };
+    addConnection(newConn);
+    setEdges((eds) => addEdge({ ...params, style: { stroke: '#0ea5e9' } }, eds));
+  }, [addConnection, setEdges]);
+
+  // Handle drop from block library
+  const onDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+  }, []);
+
+  const onDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    const blockDefId = e.dataTransfer.getData('application/reactflow');
+    if (!blockDefId) return;
+    const def = getBlockById(blockDefId);
+    if (!def) return;
+
+    const bounds = e.currentTarget.getBoundingClientRect();
+    const position = {
+      x: e.clientX - bounds.left - 80,
+      y: e.clientY - bounds.top - 20,
+    };
+
+    const defaultParams: Record<string, any> = {};
+    def.parameters.forEach((p) => {
+      if (p.defaultValue !== undefined) defaultParams[p.name] = p.defaultValue;
+    });
+
+    const newBlock: PolicyBlock = {
+      id: `block-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
+      definitionId: def.id,
+      position,
+      parameters: defaultParams,
+      selected: false,
+      collapsed: false,
+      errors: [],
+      warnings: [],
+    };
+    addBlock(newBlock);
+
+    // Also add to local React Flow state
+    const borderColor = CATEGORY_COLORS[def.category] || '#6b7280';
+    setNodes((nds) => [
+      ...nds,
+      {
+        id: newBlock.id,
+        position,
+        data: { label: `${def.icon} ${def.name}` },
+        style: {
+          background: '#1e293b',
+          color: '#e2e8f0',
+          border: `2px solid ${borderColor}`,
+          borderRadius: 8,
+          padding: 12,
+          fontSize: 13,
+          minWidth: 160,
+        },
+      },
+    ]);
+  }, [addBlock, setNodes]);
+
+  const onPaneClick = useCallback(() => selectBlock(null), [selectBlock]);
 
   return (
     <ReactFlow
-      nodes={nodes}
-      edges={edges}
-      onNodesChange={onNodesChange}
-      onEdgesChange={onEdgesChange}
+      nodes={rfNodes}
+      edges={rfEdges}
+      onNodesChange={handleNodesChange}
+      onEdgesChange={handleEdgesChange}
       onConnect={onConnect}
+      onDrop={onDrop}
+      onDragOver={onDragOver}
+      onPaneClick={onPaneClick}
       fitView
+      snapToGrid
+      snapGrid={[16, 16]}
       style={{ background: '#0f172a' }}
     >
       <Background variant={BackgroundVariant.Dots} gap={16} size={1} color="#334155" />
@@ -73,42 +194,14 @@ const FlowCanvas: React.FC = () => {
 const VisualPolicyBuilder: React.FC = () => {
   return (
     <div style={{ width: '100%', height: '100%', display: 'flex', background: '#0f172a' }}>
-      {/* Sidebar placeholder */}
       <div style={{
-        width: 280,
+        width: 300,
         flexShrink: 0,
-        background: '#1e293b',
         borderRight: '1px solid #334155',
-        padding: 16,
         overflowY: 'auto',
-        color: '#e2e8f0',
       }}>
-        <h2 style={{ fontSize: 16, fontWeight: 600, marginBottom: 12, color: '#f1f5f9' }}>
-          Block Library
-        </h2>
-        <p style={{ fontSize: 13, color: '#94a3b8', marginBottom: 16 }}>
-          Drag blocks to the canvas to build your policy. Full block library coming soon.
-        </p>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          {['🛡️ PII Detection', '🔒 Prompt Injection', '⚡ Allow/Deny', '💰 Budget Check', '🔀 Router', '📋 Compliance'].map((name) => (
-            <div
-              key={name}
-              style={{
-                padding: '10px 12px',
-                background: '#0f172a',
-                border: '1px solid #334155',
-                borderRadius: 8,
-                fontSize: 13,
-                cursor: 'grab',
-              }}
-            >
-              {name}
-            </div>
-          ))}
-        </div>
+        <BlockLibrary />
       </div>
-
-      {/* Canvas */}
       <div style={{ flex: 1, height: '100%' }}>
         <ReactFlowProvider>
           <FlowCanvas />
