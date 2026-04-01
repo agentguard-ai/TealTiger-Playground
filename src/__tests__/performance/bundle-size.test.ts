@@ -63,10 +63,6 @@ describe('Vercel Free Tier Bundle Optimization', () => {
       expect(viteConfigSource).toContain('jspdf');
     });
 
-    it('should split reactflow into its own chunk', () => {
-      expect(viteConfigSource).toContain("'reactflow'");
-    });
-
     it('should split router into its own chunk', () => {
       expect(viteConfigSource).toContain("'router'");
       expect(viteConfigSource).toContain('react-router-dom');
@@ -90,11 +86,11 @@ describe('Vercel Free Tier Bundle Optimization', () => {
   });
 
   describe('Lazy loading', () => {
-    it('should lazy-load VisualPolicyBuilder component', () => {
-      const appPath = resolve(__dirname, '../../App.tsx');
-      const appSource = readFileSync(appPath, 'utf-8');
-      expect(appSource).toContain("lazy(() => import('./components/VisualPolicyBuilder/VisualPolicyBuilder'))");
-      expect(appSource).toContain('Suspense');
+    it('should use lazy loading for enterprise pages', () => {
+      const routerPath = resolve(__dirname, '../../Router.tsx');
+      const routerSource = readFileSync(routerPath, 'utf-8');
+      expect(routerSource).toContain('lazy(');
+      expect(routerSource).toContain('Suspense');
     });
   });
 

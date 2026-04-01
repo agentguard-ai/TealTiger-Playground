@@ -1,4 +1,4 @@
-import { useEffect, useState, lazy, Suspense } from 'react';
+import { useEffect, useState } from 'react';
 import { MainLayout } from './components/Layout/MainLayout';
 import { ExampleLibrary } from './components/Examples/ExampleLibrary';
 import { PolicyEditor } from './components/Editor/PolicyEditor';
@@ -13,10 +13,6 @@ import { useEvaluation } from './hooks/useEvaluation';
 import { useURLState } from './hooks/useURLState';
 import type { ExamplePolicy } from './examples';
 import type { TestScenario } from './types';
-
-const VisualPolicyBuilder = lazy(() => import('./components/VisualPolicyBuilder/VisualPolicyBuilder'));
-
-type AppMode = 'code' | 'visual';
 
 function App() {
   const {
@@ -41,7 +37,6 @@ function App() {
   const [isImportExportOpen, setIsImportExportOpen] = useState(false);
   const [shareUrl, setShareUrl] = useState('');
   const [isTruncated, setIsTruncated] = useState(false);
-  const [appMode, setAppMode] = useState<AppMode>('code');
 
   // Scenario editor state
   const [isScenarioEditorOpen, setIsScenarioEditorOpen] = useState(false);
@@ -218,82 +213,40 @@ function App() {
 
   return (
     <>
-      {/* Mode Toggle Bar */}
-      <div className="bg-gray-900 border-b border-gray-700 px-4 py-2 flex items-center gap-3">
-        <span className="text-gray-400 text-sm font-medium">Mode:</span>
-        <button
-          onClick={() => setAppMode('code')}
-          className={`px-3 py-1.5 text-sm rounded-md transition-colors ${
-            appMode === 'code'
-              ? 'bg-teal-600 text-white'
-              : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-          }`}
-        >
-          Code Playground
-        </button>
-        <button
-          onClick={() => setAppMode('visual')}
-          className={`px-3 py-1.5 text-sm rounded-md transition-colors flex items-center gap-1.5 ${
-            appMode === 'visual'
-              ? 'bg-teal-600 text-white'
-              : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-          }`}
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
-          </svg>
-          Visual Builder
-        </button>
-      </div>
+      <MainLayout
+        sidebar={sidebar}
+        editor={editor}
+        results={resultsContent}
+        onShare={handleShare}
+        onExport={() => setIsImportExportOpen(true)}
+      />
 
-      {appMode === 'visual' ? (
-        <div style={{ height: 'calc(100vh - 44px)' }}>
-          <Suspense fallback={
-            <div className="h-full flex items-center justify-center bg-gray-900 text-gray-400">
-              Loading Visual Policy Builder...
-            </div>
-          }>
-            <VisualPolicyBuilder />
-          </Suspense>
-        </div>
-      ) : (
-        <>
-          <MainLayout
-            sidebar={sidebar}
-            editor={editor}
-            results={resultsContent}
-            onShare={handleShare}
-            onExport={() => setIsImportExportOpen(true)}
-          />
-
-          {/* Modals */}
-          <WelcomeModal isOpen={isWelcomeOpen} onClose={() => setIsWelcomeOpen(false)} />
-          
-          <ShareModal
-            isOpen={isShareOpen}
-            onClose={() => setIsShareOpen(false)}
-            shareUrl={shareUrl}
-            isTruncated={isTruncated}
-          />
-          
-          <ImportExportModal
-            isOpen={isImportExportOpen}
-            onClose={() => setIsImportExportOpen(false)}
-            scenarios={scenarios}
-            onImport={handleImport}
-          />
-          
-          <ScenarioEditor
-            scenario={editingScenario}
-            isOpen={isScenarioEditorOpen}
-            onClose={() => {
-              setIsScenarioEditorOpen(false);
-              setEditingScenario(null);
-            }}
-            onSave={handleSaveScenario}
-          />
-        </>
-      )}
+      {/* Modals */}
+      <WelcomeModal isOpen={isWelcomeOpen} onClose={() => setIsWelcomeOpen(false)} />
+      
+      <ShareModal
+        isOpen={isShareOpen}
+        onClose={() => setIsShareOpen(false)}
+        shareUrl={shareUrl}
+        isTruncated={isTruncated}
+      />
+      
+      <ImportExportModal
+        isOpen={isImportExportOpen}
+        onClose={() => setIsImportExportOpen(false)}
+        scenarios={scenarios}
+        onImport={handleImport}
+      />
+      
+      <ScenarioEditor
+        scenario={editingScenario}
+        isOpen={isScenarioEditorOpen}
+        onClose={() => {
+          setIsScenarioEditorOpen(false);
+          setEditingScenario(null);
+        }}
+        onSave={handleSaveScenario}
+      />
     </>
   );
 }
