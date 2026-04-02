@@ -49,9 +49,9 @@ function App() {
     if (urlState) {
       loadSessionState(urlState);
     } else {
-      // Show welcome modal if not dismissed
+      // Show welcome modal only if no policy code loaded and not dismissed
       const dismissed = localStorage.getItem('tealtiger-playground-welcome-dismissed');
-      if (!dismissed) {
+      if (!dismissed && !policyCode) {
         setIsWelcomeOpen(true);
       }
     }
