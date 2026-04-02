@@ -8,6 +8,7 @@ import { ResultDisplay } from './components/Results/ResultDisplay';
 import { WelcomeModal } from './components/Modals/WelcomeModal';
 import { ShareModal } from './components/Modals/ShareModal';
 import { ImportExportModal } from './components/Modals/ImportExportModal';
+import { ExportDropdown } from './components/Export/ExportDropdown';
 import { usePlaygroundStore } from './store/playgroundStore';
 import { useEvaluation } from './hooks/useEvaluation';
 import { useURLState } from './hooks/useURLState';
@@ -165,11 +166,13 @@ function App() {
     <div className="h-full flex flex-col">
       <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-gray-50">
         <h2 className="text-sm font-semibold text-gray-900">Policy Editor</h2>
-        <button
-          onClick={handleEvaluate}
-          disabled={isEvaluating || scenarios.length === 0}
-          className="px-4 py-2 bg-teal-600 text-white text-sm rounded-md hover:bg-teal-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center gap-2"
-        >
+        <div className="flex items-center gap-2">
+          <ExportDropdown policyCode={policyCode} />
+          <button
+            onClick={handleEvaluate}
+            disabled={isEvaluating || scenarios.length === 0}
+            className="px-4 py-2 bg-teal-600 text-white text-sm rounded-md hover:bg-teal-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center gap-2"
+          >
           {isEvaluating ? (
             <>
               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
@@ -194,7 +197,8 @@ function App() {
               Run Evaluation
             </>
           )}
-        </button>
+          </button>
+        </div>
       </div>
       <div className="flex-1">
         <PolicyEditor onEvaluate={handleEvaluate} />
