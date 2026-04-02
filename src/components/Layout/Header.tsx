@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import { SignInButton, UserProfile } from '../Auth';
+import React, { useEffect } from 'react';
 import { ExportDropdown } from '../Export/ExportDropdown';
 import { useAuthStore } from '@/store/authStore';
 import { usePlaygroundStore } from '@/store/playgroundStore';
@@ -13,125 +12,65 @@ interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({
   onShare,
-  onExport,
   onMenuToggle,
   isMobileMenuOpen = false,
 }) => {
-  const { isAuthenticated, restoreSession } = useAuthStore();
+  const { restoreSession } = useAuthStore();
   const { policyCode } = usePlaygroundStore();
 
-  // Restore session on mount
   useEffect(() => {
     restoreSession();
   }, [restoreSession]);
 
   return (
-    <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
-      <div className="px-4 py-3">
-        <div className="flex items-center justify-between">
-          {/* Logo and Title */}
-          <div className="flex items-center gap-3">
-            {/* Mobile menu toggle */}
-            {onMenuToggle && (
-              <button
-                onClick={onMenuToggle}
-                className="md:hidden p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md"
-                aria-label="Toggle menu"
-                aria-expanded={isMobileMenuOpen}
-              >
-                <svg
-                  className="w-6 h-6"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  {isMobileMenuOpen ? (
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  ) : (
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M4 6h16M4 12h16M4 18h16"
-                    />
-                  )}
-                </svg>
-              </button>
-            )}
-
-            {/* Logo */}
-            <div className="flex items-center gap-2">
-              <img src="/tealtiger-logo-64.png" alt="TealTiger" className="w-8 h-8 rounded-lg" />
-              <div>
-                <h1 className="text-lg font-bold text-gray-900">TealTiger</h1>
-                <p className="text-xs text-gray-500 hidden sm:block">Interactive Playground</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Actions */}
-          <div className="flex items-center gap-2">
-            {/* Authentication */}
-            {isAuthenticated ? (
-              <UserProfile />
-            ) : (
-              <SignInButton />
-            )}
-
-            {/* Share Button */}
+    <header className="bg-white border-b border-gray-200/80 sticky top-0 z-50">
+      <div className="flex items-center justify-between px-4 h-12">
+        {/* Left: mobile menu + breadcrumb */}
+        <div className="flex items-center gap-3">
+          {onMenuToggle && (
             <button
-              onClick={onShare}
-              className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-teal-700 bg-teal-50 hover:bg-teal-100 rounded-md transition-colors"
-              aria-label="Share playground"
+              onClick={onMenuToggle}
+              className="md:hidden p-1.5 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded"
+              aria-label="Toggle menu"
+              aria-expanded={isMobileMenuOpen}
             >
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
-                />
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                {isMobileMenuOpen ? (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" />
+                ) : (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 6h16M4 12h16M4 18h16" />
+                )}
               </svg>
-              <span className="hidden sm:inline">Share</span>
             </button>
+          )}
+          <span className="text-sm text-gray-500 font-medium">Policy Editor</span>
+        </div>
 
-            {/* Export Dropdown */}
-            <ExportDropdown policyCode={policyCode} />
+        {/* Right: actions */}
+        <div className="flex items-center gap-1.5">
+          <ExportDropdown policyCode={policyCode} />
 
-            {/* Help Link */}
-            <a
-              href="https://docs.tealtiger.ai"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
-              aria-label="View documentation"
-            >
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-              <span className="hidden lg:inline">Help</span>
-            </a>
-          </div>
+          <button
+            onClick={onShare}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-md transition-colors"
+          >
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+            </svg>
+            Share
+          </button>
+
+          <a
+            href="https://docs.tealtiger.ai"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50 rounded-md transition-colors"
+          >
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+            </svg>
+            Docs
+          </a>
         </div>
       </div>
     </header>

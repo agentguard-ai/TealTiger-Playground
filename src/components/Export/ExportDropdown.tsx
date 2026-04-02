@@ -8,10 +8,10 @@ interface ExportDropdownProps {
 }
 
 const EXPORT_OPTIONS = [
-  { id: 'typescript', label: 'TypeScript SDK', icon: '🟦', desc: 'Ready-to-use TealEngine setup' },
-  { id: 'python', label: 'Python SDK', icon: '🐍', desc: 'Ready-to-use Python setup' },
-  { id: 'json', label: 'JSON Policy', icon: '📄', desc: 'Portable policy config file' },
-  { id: 'cicd', label: 'GitHub Actions', icon: '🔄', desc: 'CI/CD workflow snippet' },
+  { id: 'typescript', label: 'TypeScript SDK', icon: 'TS', desc: 'Ready-to-use TealEngine setup' },
+  { id: 'python', label: 'Python SDK', icon: 'PY', desc: 'Ready-to-use Python setup' },
+  { id: 'json', label: 'JSON Policy', icon: '{}', desc: 'Portable policy config file' },
+  { id: 'cicd', label: 'GitHub Actions', icon: 'CI', desc: 'CI/CD workflow snippet' },
 ] as const;
 
 type ExportFormat = typeof EXPORT_OPTIONS[number]['id'];
@@ -77,29 +77,29 @@ export function ExportDropdown({ policyCode }: ExportDropdownProps) {
       <div className="relative" ref={dropdownRef}>
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="px-3 py-2 bg-gray-800 text-white text-sm rounded-md hover:bg-gray-700 transition-colors flex items-center gap-1.5"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-teal-600 hover:bg-teal-700 rounded-md transition-colors"
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
           </svg>
           Export
-          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-3 h-3 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
           </svg>
         </button>
 
         {isOpen && (
-          <div className="absolute right-0 mt-1 w-64 bg-white rounded-lg shadow-lg border border-gray-200 z-50 py-1">
+          <div className="absolute right-0 mt-1 w-56 bg-white rounded-lg shadow-lg border border-gray-200 z-50 py-1">
             {EXPORT_OPTIONS.map(opt => (
               <button
                 key={opt.id}
                 onClick={() => handleExport(opt.id)}
-                className="w-full text-left px-4 py-2.5 hover:bg-gray-50 transition-colors flex items-center gap-3"
+                className="w-full text-left px-3 py-2 hover:bg-gray-50 transition-colors flex items-center gap-3"
               >
-                <span className="text-lg">{opt.icon}</span>
+                <span className="w-6 text-center text-[10px] font-bold text-gray-400 font-mono">{opt.icon}</span>
                 <div>
-                  <p className="text-sm font-medium text-gray-900">{opt.label}</p>
-                  <p className="text-xs text-gray-500">{opt.desc}</p>
+                  <p className="text-xs font-medium text-gray-900">{opt.label}</p>
+                  <p className="text-[10px] text-gray-500">{opt.desc}</p>
                 </div>
               </button>
             ))}
