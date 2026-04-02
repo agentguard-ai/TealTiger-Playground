@@ -90,6 +90,7 @@ export class EvaluationEngine {
       'detectPII',
       'detectInjection',
       'estimateCost',
+      'getProviderRegion',
       `
         ${cleanedCode}
         return ${functionName}(request, context, response);
@@ -111,7 +112,8 @@ export class EvaluationEngine {
         mockResponse,
         api.detectPII,
         api.detectInjection,
-        api.estimateCost
+        api.estimateCost,
+        api.getProviderRegion
       )
     );
 

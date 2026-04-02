@@ -98,4 +98,17 @@ export const TealTigerAPI = {
     const modelPricing = pricing[model!] || { input: 0.001, output: 0.002 };
     return (tokensOrParams / 1000) * modelPricing.input;
   },
+
+  getProviderRegion: (provider: string, _endpoint?: string): string => {
+    const regionMap: Record<string, string> = {
+      'openai': 'us-east',
+      'anthropic': 'us-west',
+      'gemini': 'us-central',
+      'bedrock': 'us-east',
+      'azure': 'eu-west',
+      'cohere': 'us-east',
+      'mistral': 'eu-central',
+    };
+    return regionMap[provider?.toLowerCase()] || 'us-east';
+  },
 };
