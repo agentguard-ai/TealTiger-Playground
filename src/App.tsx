@@ -57,13 +57,8 @@ function App() {
     }
   }, []);
 
-  // Save state to URL when it changes
-  useEffect(() => {
-    if (policyCode || scenarios.length > 0) {
-      const state = getSessionState();
-      saveToURL(state);
-    }
-  }, [policyCode, scenarios]);
+  // URL state is only used for explicit sharing, not auto-saved
+  // This keeps the URL clean during normal usage
 
   // Handle example selection
   const handleSelectExample = (example: ExamplePolicy) => {

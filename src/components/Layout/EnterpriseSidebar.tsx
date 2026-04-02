@@ -1,16 +1,19 @@
 import { NavLink } from 'react-router-dom';
 
 const navItems = [
-  { to: '/', label: 'Playground', icon: '⚡' },
-  { to: '/templates', label: 'Templates', icon: '📦' },
+  { to: '/', label: 'Playground', icon: '▶' },
+  { to: '/templates', label: 'Templates', icon: '📋' },
 ];
 
 export function EnterpriseSidebar() {
   return (
     <aside className="w-56 bg-gray-900 text-gray-300 flex flex-col h-full overflow-y-auto border-r border-gray-700">
-      <div className="px-4 py-4 border-b border-gray-700">
-        <h1 className="text-lg font-bold text-teal-400">🐯 TealTiger</h1>
-        <p className="text-xs text-gray-500 mt-0.5">Policy Playground</p>
+      <div className="px-4 py-4 border-b border-gray-700 flex items-center gap-2">
+        <img src="/tealtiger-logo-64.png" alt="TealTiger" className="w-7 h-7 rounded" />
+        <div>
+          <h1 className="text-base font-bold text-teal-400">TealTiger</h1>
+          <p className="text-[10px] text-gray-500">Policy Playground</p>
+        </div>
       </div>
       <nav className="flex-1 py-4">
         {navItems.map((item) => (
