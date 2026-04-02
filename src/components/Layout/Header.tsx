@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { SignInButton, UserProfile } from '../Auth';
+import { ExportDropdown } from '../Export/ExportDropdown';
 import { useAuthStore } from '@/store/authStore';
+import { usePlaygroundStore } from '@/store/playgroundStore';
 
 interface HeaderProps {
   onShare: () => void;
@@ -16,6 +18,7 @@ export const Header: React.FC<HeaderProps> = ({
   isMobileMenuOpen = false,
 }) => {
   const { isAuthenticated, restoreSession } = useAuthStore();
+  const { policyCode } = usePlaygroundStore();
 
   // Restore session on mount
   useEffect(() => {
@@ -116,27 +119,8 @@ export const Header: React.FC<HeaderProps> = ({
               <span className="hidden sm:inline">Share</span>
             </button>
 
-            {/* Export Button */}
-            <button
-              onClick={onExport}
-              className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
-              aria-label="Export scenarios"
-            >
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-                />
-              </svg>
-              <span className="hidden sm:inline">Export</span>
-            </button>
+            {/* Export Dropdown */}
+            <ExportDropdown policyCode={policyCode} />
 
             {/* Help Link */}
             <a
