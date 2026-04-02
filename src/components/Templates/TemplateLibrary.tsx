@@ -2,14 +2,35 @@
 // Displays policy templates with category filtering and search
 
 import React, { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { policyTemplateService } from '../../services/PolicyTemplateService';
 import type { PolicyTemplate } from '../../types/policy-template';
 import { TemplateCard } from './TemplateCard.tsx';
+import { usePlaygroundStore } from '../../store/playgroundStore';
 
 export const TemplateLibrary: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTemplate, setSelectedTemplate] = useState<PolicyTemplate | null>(null);
+  const navigate = useNavigate();
+  const { setPolicyCode } = usePlaygroundStore();
+
+  const handleUseTemplate = (template: PolicyTemplate) => {
+    // Generate code with default parameter values
+    try {
+      const defaults: Record<string, unknown> = {};
+      template.parameters.forEach(p => {
+        defaults[p.name] = p.defaultValue;
+      });
+      const code = policyTemplateService.customizeTemplate(template.id, defaults);
+      setPolicyCode(code);
+      navigate('/');
+    } catch {
+      // Fallback: use raw template code
+      setPolicyCode(template.code);
+      navigate('/');
+    }
+  };
 
   const categories = useMemo(() => {
     return ['all', ...policyTemplateService.getCategories()];
@@ -107,7 +128,7 @@ export const TemplateLibrary: React.FC = () => {
             <TemplateCard
               key={template.id}
               template={template}
-              onSelect={() => setSelectedTemplate(template)}
+              onSelect={() => handleUseTemplate(template)}
             />
           ))}
         </div>
