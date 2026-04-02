@@ -78,21 +78,12 @@ export default defineConfig({
       output: {
         // Optimized manual chunks for better caching and smaller initial load
         manualChunks: {
-          // Core React runtime — cached long-term, rarely changes
           'react-vendor': ['react', 'react-dom'],
-          // Monaco editor — largest dependency, loaded on demand
           'monaco-editor': ['monaco-editor'],
-          // Router — small but separate for route-level splitting
           'router': ['react-router-dom'],
-          // Supabase client — only needed when auth/team features are used
           'supabase': ['@supabase/supabase-js'],
-          // PDF generation — heavy, only needed for compliance reports
           'pdf': ['jspdf'],
-          // Visual builder dependency
-          'reactflow': ['reactflow'],
-          // Lightweight utilities
           'utils': ['lz-string', 'zustand', 'clsx'],
-          // Markdown rendering
           'markdown': ['react-markdown'],
         },
         // Use hashed filenames for long-term caching
@@ -102,7 +93,6 @@ export default defineConfig({
       },
       // Tree-shake aggressively
       treeshake: {
-        moduleSideEffects: false,
         preset: 'recommended',
       },
     },
