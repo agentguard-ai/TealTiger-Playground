@@ -2,7 +2,8 @@
 // Requirements: 3.5, 3.6
 
 import React, { useState, useEffect } from 'react';
-import { Policy, PolicyFilters, PolicyState } from '../../types/policy';
+import type { Policy, PolicyFilters } from '../../types/policy';
+import { PolicyState } from '../../types/policy';
 import { policyRegistryService } from '../../services/PolicyRegistryService';
 import { PolicyCard } from './PolicyCard';
 

@@ -2,7 +2,7 @@
 // Requirements: 17.7
 
 import React from 'react';
-import type { AffectedScenario, ScenarioChange } from '../../types/impact';
+import type { AffectedScenario } from '../../types/impact';
 
 interface ScenarioChangeDetailProps {
   scenario: AffectedScenario;

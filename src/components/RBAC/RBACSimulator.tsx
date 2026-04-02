@@ -31,7 +31,7 @@ export const RBACSimulator: React.FC<RBACSimulatorProps> = ({
   const [loading, setLoading] = useState(true);
   const [showEditor, setShowEditor] = useState(false);
   const [editingRole, setEditingRole] = useState<RoleDefinition | undefined>();
-  const [simulationResults, setSimulationResults] = useState<SimulationResult[]>([]);
+  const [simulationResults, _setSimulationResults] = useState<SimulationResult[]>([]);
   const [activeTab, setActiveTab] = useState<'roles' | 'simulate' | 'compare'>('roles');
 
   useEffect(() => {

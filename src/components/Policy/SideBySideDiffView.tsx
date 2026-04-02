@@ -11,7 +11,6 @@ interface SideBySideDiffViewProps {
 export const SideBySideDiffView: React.FC<SideBySideDiffViewProps> = ({ diff }) => {
   const oldLines = diff.oldVersion.code.split('\n');
   const newLines = diff.newVersion.code.split('\n');
-  const maxLines = Math.max(oldLines.length, newLines.length);
 
   // Build a map of line numbers to changes for quick lookup
   const changeMap = new Map<number, typeof diff.changes[0]>();

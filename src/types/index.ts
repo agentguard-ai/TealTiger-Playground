@@ -75,6 +75,3 @@ export * from './environment';
 
 // Re-export CI/CD types
 export * from './cicd';
-
-// Re-export visual policy types
-export * from './visual-policy';

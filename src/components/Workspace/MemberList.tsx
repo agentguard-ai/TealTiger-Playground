@@ -1,5 +1,6 @@
 import React from 'react';
-import type { WorkspaceMember, WorkspaceRole } from '../../types/workspace';
+import { WorkspaceRole } from '../../types/workspace';
+import type { WorkspaceMember } from '../../types/workspace';
 
 interface MemberWithUser extends WorkspaceMember {
   user?: {
@@ -21,10 +22,10 @@ interface MemberListProps {
 export const MemberList: React.FC<MemberListProps> = ({
   members,
   currentUserId,
-  workspaceOwnerId,
+  workspaceOwnerId: _workspaceOwnerId,
   onRemoveMember,
   onUpdateRole,
-  onTransferOwnership,
+  onTransferOwnership: _onTransferOwnership,
 }) => {
   const isCurrentUserOwner = members.find(
     (m) => m.userId === currentUserId && m.role === 'owner'
@@ -150,10 +151,10 @@ export const MemberList: React.FC<MemberListProps> = ({
               {/* Actions (only for owners) */}
               {isCurrentUserOwner && member.userId !== currentUserId && (
                 <div className="flex items-center gap-1">
-                  {member.role !== 'owner' && (
+                  {member.role !== WorkspaceRole.Owner && (
                     <>
                       <button
-                        onClick={() => onUpdateRole(member.id, 'owner')}
+                        onClick={() => onUpdateRole(member.id, WorkspaceRole.Owner)}
                         className="p-1 text-gray-400 hover:text-purple-600 transition-colors"
                         title="Make owner"
                       >

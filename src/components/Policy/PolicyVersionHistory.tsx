@@ -2,7 +2,7 @@
 // Requirements: 3.6, 3.7
 
 import React, { useState, useEffect } from 'react';
-import { PolicyVersion } from '../../types/policy';
+import type { PolicyVersion } from '../../types/policy';
 import { policyRegistryService } from '../../services/PolicyRegistryService';
 
 interface PolicyVersionHistoryProps {

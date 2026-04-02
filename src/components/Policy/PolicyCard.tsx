@@ -2,7 +2,8 @@
 // Requirements: 3.4, 3.5, 3.6
 
 import React from 'react';
-import { Policy, PolicyState } from '../../types/policy';
+import type { Policy } from '../../types/policy';
+import { PolicyState } from '../../types/policy';
 
 interface PolicyCardProps {
   policy: Policy;

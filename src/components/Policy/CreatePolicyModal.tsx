@@ -2,7 +2,7 @@
 // Requirements: 3.1, 3.4, 3.10
 
 import React, { useState } from 'react';
-import { PolicyMetadata } from '../../types/policy';
+import type { PolicyMetadata } from '../../types/policy';
 import { policyRegistryService } from '../../services/PolicyRegistryService';
 import {
   validatePolicyName,

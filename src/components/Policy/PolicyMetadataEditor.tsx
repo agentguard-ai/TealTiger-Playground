@@ -2,7 +2,7 @@
 // Requirements: 3.4
 
 import React, { useState } from 'react';
-import { PolicyMetadata } from '../../types/policy';
+import type { PolicyMetadata } from '../../types/policy';
 
 interface PolicyMetadataEditorProps {
   metadata: PolicyMetadata;
