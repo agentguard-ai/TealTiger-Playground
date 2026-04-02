@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { useToast } from '../hooks/useToast';
+import { ToastContainer } from '../components/Toast';
 
 const DEMO_POLICIES = [
   { id: '1', name: 'PII Detection & Redaction', state: 'Production', version: '2.1.0', author: 'admin', tags: ['security', 'pii'], updatedAt: '2026-03-10' },
@@ -17,6 +19,7 @@ const STATE_COLORS: Record<string, string> = {
 
 export function PoliciesPage() {
   const [search, setSearch] = useState('');
+  const { toasts, show } = useToast();
   const filtered = DEMO_POLICIES.filter(p =>
     p.name.toLowerCase().includes(search.toLowerCase()) ||
     p.tags.some(t => t.includes(search.toLowerCase()))
@@ -29,7 +32,7 @@ export function PoliciesPage() {
           <h1 className="text-2xl font-bold text-gray-900">Policy Registry</h1>
           <p className="text-sm text-gray-500 mt-1">Manage, version, and review your policies</p>
         </div>
-        <button className="px-4 py-2 bg-teal-600 text-white text-sm rounded-md hover:bg-teal-700">+ New Policy</button>
+        <button className="px-4 py-2 bg-teal-600 text-white text-sm rounded-md hover:bg-teal-700" onClick={() => show('Navigate to Playground to create a policy', 'info')}>+ New Policy</button>
       </div>
       <input
         type="text"
@@ -64,6 +67,7 @@ export function PoliciesPage() {
           </tbody>
         </table>
       </div>
+      <ToastContainer toasts={toasts} />
     </div>
   );
 }

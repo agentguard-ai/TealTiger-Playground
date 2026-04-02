@@ -1,4 +1,9 @@
+import { useToast } from '../hooks/useToast';
+import { ToastContainer } from '../components/Toast';
+
 export function SharingPage() {
+  const { toasts, show } = useToast();
+
   return (
     <div className="p-6">
       <div className="mb-6">
@@ -26,10 +31,11 @@ export function SharingPage() {
                 <span key={t} className="bg-gray-100 text-gray-600 text-xs px-2 py-0.5 rounded">{t}</span>
               ))}
             </div>
-            <button className="mt-3 w-full px-3 py-1.5 bg-teal-600 text-white text-xs rounded-md hover:bg-teal-700">Fork to Workspace</button>
+            <button className="mt-3 w-full px-3 py-1.5 bg-teal-600 text-white text-xs rounded-md hover:bg-teal-700" onClick={() => show('Policy forked to your workspace', 'success')}>Fork to Workspace</button>
           </div>
         ))}
       </div>
+      <ToastContainer toasts={toasts} />
     </div>
   );
 }

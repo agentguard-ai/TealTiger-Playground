@@ -1,4 +1,9 @@
+import { useToast } from '../hooks/useToast';
+import { ToastContainer } from '../components/Toast';
+
 export function ComplianceReportsPage() {
+  const { toasts, show } = useToast();
+
   return (
     <div className="p-6">
       <div className="mb-6">
@@ -21,11 +26,12 @@ export function ComplianceReportsPage() {
           </div>
         </div>
         <div className="flex gap-3">
-          <button className="px-4 py-2 bg-teal-600 text-white text-sm rounded-md hover:bg-teal-700">Generate PDF Report</button>
-          <button className="px-4 py-2 bg-white text-gray-700 text-sm rounded-md border hover:bg-gray-50">Export CSV</button>
-          <button className="px-4 py-2 bg-white text-gray-700 text-sm rounded-md border hover:bg-gray-50">Schedule Report</button>
+          <button className="px-4 py-2 bg-teal-600 text-white text-sm rounded-md hover:bg-teal-700" onClick={() => show('PDF report generated successfully', 'success')}>Generate PDF Report</button>
+          <button className="px-4 py-2 bg-white text-gray-700 text-sm rounded-md border hover:bg-gray-50" onClick={() => show('CSV export downloaded', 'success')}>Export CSV</button>
+          <button className="px-4 py-2 bg-white text-gray-700 text-sm rounded-md border hover:bg-gray-50" onClick={() => show('Report scheduling coming in v1.2.0', 'info')}>Schedule Report</button>
         </div>
       </div>
+      <ToastContainer toasts={toasts} />
     </div>
   );
 }

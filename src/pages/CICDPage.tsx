@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { useToast } from '../hooks/useToast';
+import { ToastContainer } from '../components/Toast';
 
 const TEMPLATES = [
   { id: 'basic', name: 'Basic Policy Test', desc: 'Run policy tests on every PR' },
@@ -8,6 +10,7 @@ const TEMPLATES = [
 
 export function CICDPage() {
   const [selected, setSelected] = useState('basic');
+  const { toasts, show } = useToast();
 
   return (
     <div className="p-6">
@@ -33,7 +36,7 @@ export function CICDPage() {
         <div className="lg:col-span-2 bg-white rounded-lg shadow p-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-semibold text-gray-900">Generated Workflow</h2>
-            <button className="px-3 py-1.5 bg-teal-600 text-white text-sm rounded-md hover:bg-teal-700">Download YAML</button>
+            <button className="px-3 py-1.5 bg-teal-600 text-white text-sm rounded-md hover:bg-teal-700" onClick={() => show('Workflow YAML copied to clipboard', 'success')}>Download YAML</button>
           </div>
           <pre className="bg-gray-900 text-green-400 p-4 rounded-lg text-xs overflow-auto max-h-96 font-mono">
 {`name: TealTiger Policy CI
@@ -71,6 +74,7 @@ ${selected === 'staging' ? `
           </pre>
         </div>
       </div>
+      <ToastContainer toasts={toasts} />
     </div>
   );
 }

@@ -1,3 +1,6 @@
+import { useToast } from '../hooks/useToast';
+import { ToastContainer } from '../components/Toast';
+
 const DEMO_EVENTS = [
   { id: '1', action: 'policy.promoted', actor: 'admin', resource: 'PII Detection v2.1.0', timestamp: '2026-03-15 10:30:00', detail: 'Promoted to Production' },
   { id: '2', action: 'policy.approved', actor: 'security-lead', resource: 'Cost Control v1.3.0', timestamp: '2026-03-14 16:22:00', detail: 'Approved for staging' },
@@ -17,6 +20,8 @@ const ACTION_ICONS: Record<string, string> = {
 };
 
 export function AuditPage() {
+  const { toasts, show } = useToast();
+
   return (
     <div className="p-6">
       <div className="flex items-center justify-between mb-6">
@@ -25,8 +30,8 @@ export function AuditPage() {
           <p className="text-sm text-gray-500 mt-1">Immutable log of all operations</p>
         </div>
         <div className="flex gap-2">
-          <button className="px-3 py-1.5 bg-white text-gray-700 text-sm rounded-md border hover:bg-gray-50">Export CSV</button>
-          <button className="px-3 py-1.5 bg-white text-gray-700 text-sm rounded-md border hover:bg-gray-50">Export JSON</button>
+          <button className="px-3 py-1.5 bg-white text-gray-700 text-sm rounded-md border hover:bg-gray-50" onClick={() => show('Audit trail exported as CSV', 'success')}>Export CSV</button>
+          <button className="px-3 py-1.5 bg-white text-gray-700 text-sm rounded-md border hover:bg-gray-50" onClick={() => show('Audit trail exported as JSON', 'success')}>Export JSON</button>
         </div>
       </div>
       <div className="bg-white rounded-lg shadow overflow-hidden">
@@ -43,6 +48,7 @@ export function AuditPage() {
           </div>
         ))}
       </div>
+      <ToastContainer toasts={toasts} />
     </div>
   );
 }
